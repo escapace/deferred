@@ -1,5 +1,6 @@
 {
   "name": "@escapace/deferred",
+  "description": "TypeScript implementation of the deferred pattern with explicit promise control",
   "version": "0.0.0",
   "author": {
     "name": "escapace",
