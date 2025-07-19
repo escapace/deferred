@@ -4,20 +4,29 @@
  * via the promise property on the deferred.
  */
 
+const FATE_RESOLVED = 'resolved' as const
+const FATE_UNRESOLVED = 'unresolved' as const
+
+const STATE_FULFILLED = 'fulfilled' as const
+const STATE_PENDING = 'pending' as const
+const STATE_REJECTED = 'rejected' as const
+
+const ERROR_DOUBLE_RESOLUTION = 'Deferred cannot be resolved twice'
+
 export class Deferred<T> {
   // eslint-disable-next-line typescript/no-explicit-any
   private _reject: ((reason?: any) => void) | undefined
 
   private _resolve: ((value?: PromiseLike<T> | T) => void) | undefined
-  private fate: 'resolved' | 'unresolved'
+  private fate: typeof FATE_RESOLVED | typeof FATE_UNRESOLVED
 
-  private state: 'fulfilled' | 'pending' | 'rejected'
+  private state: typeof STATE_FULFILLED | typeof STATE_PENDING | typeof STATE_REJECTED
 
   public promise: Promise<T>
 
   constructor() {
-    this.state = 'pending'
-    this.fate = 'unresolved'
+    this.state = STATE_PENDING
+    this.fate = FATE_UNRESOLVED
 
     this.promise = new Promise((resolve, reject) => {
       this._resolve = resolve as typeof this._resolve
@@ -25,34 +34,34 @@ export class Deferred<T> {
     })
 
     this.promise.then(
-      () => (this.state = 'fulfilled'),
-      () => (this.state = 'rejected'),
+      () => (this.state = STATE_FULFILLED),
+      () => (this.state = STATE_REJECTED),
     )
   }
 
   public isFulfilled() {
-    return this.state === 'fulfilled'
+    return this.state === STATE_FULFILLED
   }
 
   public isPending() {
-    return this.state === 'pending'
+    return this.state === STATE_PENDING
   }
 
   public isRejected() {
-    return this.state === 'rejected'
+    return this.state === STATE_REJECTED
   }
 
   public isResolved() {
-    return this.fate === 'resolved'
+    return this.fate === FATE_RESOLVED
   }
 
   // eslint-disable-next-line typescript/no-explicit-any
   public reject(reason?: any) {
-    if (this.fate === 'resolved') {
-      throw new Error('Deferred cannot be resolved twice')
+    if (this.fate === FATE_RESOLVED) {
+      throw new Error(ERROR_DOUBLE_RESOLUTION)
     }
 
-    this.fate = 'resolved'
+    this.fate = FATE_RESOLVED
 
     if (this._reject !== undefined) {
       this._reject(reason)
@@ -60,11 +69,11 @@ export class Deferred<T> {
   }
 
   public resolve(value?: PromiseLike<T> | T) {
-    if (this.fate === 'resolved') {
-      throw new Error('Deferred cannot be resolved twice')
+    if (this.fate === FATE_RESOLVED) {
+      throw new Error(ERROR_DOUBLE_RESOLUTION)
     }
 
-    this.fate = 'resolved'
+    this.fate = FATE_RESOLVED
 
     if (this._resolve !== undefined) {
       this._resolve(value)
