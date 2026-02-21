@@ -63,8 +63,8 @@ export type DeferredState =
  * @typeParam T - Fulfillment value type of the underlying promise.
  */
 export class Deferred<T> {
-  private _reject: ((reason?: any) => void) | undefined
-  private _resolve: ((value?: PromiseLike<T> | T) => void) | undefined
+  private _reject!: (reason?: any) => void
+  private _resolve!: (value?: PromiseLike<T> | T) => void
 
   /**
    * Whether the deferred has been locked in.
@@ -96,15 +96,10 @@ export class Deferred<T> {
     this.state = DEFERRED_STATE_PENDING
     this.fate = DEFERRED_FATE_UNRESOLVED
 
-    this.promise = new Promise((resolve, reject) => {
+    this.promise = new Promise<T>((resolve, reject) => {
       this._resolve = resolve as typeof this._resolve
       this._reject = reject
     })
-
-    this.promise.then(
-      () => (this.state = DEFERRED_STATE_FULFILLED),
-      () => (this.state = DEFERRED_STATE_REJECTED),
-    )
   }
 
   /**
@@ -175,10 +170,12 @@ export class Deferred<T> {
     }
 
     this.fate = DEFERRED_FATE_RESOLVED
+    this._reject(reason)
 
-    if (this._reject !== undefined) {
-      this._reject(reason)
-    }
+    void this.promise.then(
+      () => (this.state = DEFERRED_STATE_FULFILLED),
+      () => (this.state = DEFERRED_STATE_REJECTED),
+    )
   }
 
   /**
@@ -201,9 +198,11 @@ export class Deferred<T> {
     }
 
     this.fate = DEFERRED_FATE_RESOLVED
+    this._resolve(value)
 
-    if (this._resolve !== undefined) {
-      this._resolve(value)
-    }
+    void this.promise.then(
+      () => (this.state = DEFERRED_STATE_FULFILLED),
+      () => (this.state = DEFERRED_STATE_REJECTED),
+    )
   }
 }

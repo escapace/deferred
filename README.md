@@ -72,7 +72,7 @@ deferred.isRejected() // false
 
 # API
 
-## class Deferred [↗](src/index.ts#L65-L209 'Deferred')
+## class Deferred [↗](src/index.ts#L65-L208 'Deferred')
 
 Promise whose outcome can be determined externally.
 

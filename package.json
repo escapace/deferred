@@ -14,8 +14,8 @@
     "@escapace/syncpack-configuration": "0.1.0",
     "@ls-lint/ls-lint": "2.3.1",
     "@vitest/coverage-v8": "4.0.18",
-    "eslint": "9.31.0",
-    "eslint-config-escapace": "5.12.2",
+    "eslint": "9.39.2",
+    "eslint-config-escapace": "5.13.0",
     "esroll": "1.1.5",
     "knip": "5.83.1",
     "lefthook": "2.1.1",
@@ -49,6 +49,7 @@
   },
   "repository": "escapace/deferred",
   "scripts": {
+    "bench": "vitest bench --run --dir perf",
     "build": "tsx scripts/build.ts",
     "format": "syncpack format && eslint --no-warn-ignored --fix && prettier --no-error-on-unmatched-pattern -uw .",
     "lint": "ls-lint --config .ls-lint.yaml && knip --no-config-hints && eslint",
